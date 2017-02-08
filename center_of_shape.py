@@ -33,9 +33,11 @@ while(True):
     for c in cnts:
 	# compute the center of the contour
 	M = cv2.moments(c)
-	cX = int(M["m10"] / M["m00"])
-	cY = int(M["m01"] / M["m00"])
-
+        if M["m00"] != 0:
+	    cX = int(M["m10"] / M["m00"])
+	    cY = int(M["m01"] / M["m00"])
+        else:
+            break
 	# draw the contour and center of the shape on the image
 	cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
 	cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
@@ -45,8 +47,8 @@ while(True):
 	# show the image
 
         cv2.imshow('image',image)
-        #cv2.imshow('res',res )
-        #cv2.imshow('thresh',thresh)
+        cv2.imshow('res',res )
+        cv2.imshow('thresh',thresh)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
