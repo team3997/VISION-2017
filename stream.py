@@ -4,27 +4,41 @@ import imutils
 import numpy as np
 import cv2
 
+#AREA FILTER
+areaFilter = 0.01
+
 #HSV FILTER
 lower_green = np.array([39,0,234]) #H,S,V
 upper_green = np.array([180, 140, 255]) #H,S,V
 
+#UDP SETTINGS
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 UDP_IP = "127.0.0.1"
-UDP_PORT = 5005
-MESSAGE = "Hello, World!"
+UDP_PORT = 5005 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+#parse args
+ap = argparse.ArgumentParser("team 3997's program to track vision targets in FRC STEAMWORKS game")
+group = ap.add_mutually_exclusive_group()
+group.add_argument("-i", "--image", nargs=1, required=False, help="path to the input image")
+group.add_argument("-c", "--webcam", nargs=1, required=False, help="webcam number source to use")
+print ap.parse_args() #debug args
+args = ap.parse_args()
 
-areaFilter = (0.01)
+def main():
+    show_webcam()
 
-def show_webcam(mirror=False):
-    cam = cv2.VideoCapture(0)
+def show_webcam():
+    if args.webcam is not None:
+        cam = cv2.VideoCapture(0)
+    elif args.image is not None:
+        image = cv2.imread(args["image"])
+    #else:
+
     while True:
-        ret_val, image = cam.read()
-        #if mirror: 
-        #    img = cv2.flip(img, 1)
-        cv2.imshow('my webcam', image)
+        if args.webcam:
+            ret_val, image = cam.read()
 
-        height, width, channels = image.shape
+        imgHeight, imgWidth, channels = image.shape
 
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)#convert image to hsv
 
@@ -50,26 +64,24 @@ def show_webcam(mirror=False):
                 break
 
             # limit area
-            if cv2.contourArea(c) / (height * width) > areaFilter:
+            if cv2.contourArea(c) / (imgHeight * imgWidth) > areaFilter:
                 # draw the contour and center of the shape on the image
                 cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
                 cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
                 cv2.putText(image, "center", (cX - 20, cY - 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-                # send values over UDP
-                # send cX, cY
-                sock.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
+                udp.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
 
             # show the image
-            cv2.imshow('image',image)
-            cv2.imshow('thresh',thresh)
-            if cv2.waitKey(1) == 27: 
-                break  # esc to quit
-    cv2.destroyAllWindows()
+            cv2.imshow('Webcam',image)
+            cv2.imshow('Filtered',thresh)
 
-def main():
-    show_webcam(mirror=True)
+        if cv2.waitKey(1) == ord('q'): 
+            break  # 'q' to quit
+        
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
+
