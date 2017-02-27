@@ -44,10 +44,10 @@ while(True):
 	cv2.putText(image, "center", (cX - 20, cY - 20),
         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-	# show the image
 
+	# show the image
         cv2.imshow('image',image)
-        cv2.imshow('res',res )
+        cv2.imshow('res',res)
         cv2.imshow('thresh',thresh)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
