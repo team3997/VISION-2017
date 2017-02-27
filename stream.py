@@ -17,11 +17,12 @@ UDP_IP = "127.0.0.1"
 UDP_PORT = 5005 
 
 #parse args
-ap = argparse.ArgumentParser("team 3997's program to track vision targets in FRC STEAMWORKS game")
+ap = argparse.ArgumentParser("Team 3997's vision program for 2017 FRC game. runs on rPi")
 group = ap.add_mutually_exclusive_group()
-group.add_argument("-i", "--image", nargs=1, required=False, help="path to the input image")
-group.add_argument("-c", "--webcam", nargs=1, required=False, help="webcam number source to use")
-print ap.parse_args() #debug args
+group.add_argument("-i", "--image", nargs=1, required=False, 
+        help="path to the input image")
+group.add_argument("-c", "--webcam", nargs=1, type=int, required=False, 
+        help="webcam number source to use")
 args = ap.parse_args()
 
 def main():
@@ -30,12 +31,15 @@ def main():
 def show_webcam():
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
+        hasImage = True
     elif args.image is not None:
-        image = cv2.imread(args["image"])
-    #else:
-
-    while True:
-        if args.webcam:
+        image = cv2.imread(args.image[0])
+        hasImage = True
+    else:
+        print("expected image or webcam arguement. use --help for more info")
+        hasImage = False 
+    while (hasImage):
+        if args.webcam is not None:
             ret_val, image = cam.read()
 
         imgHeight, imgWidth, channels = image.shape
