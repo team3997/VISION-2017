@@ -1,11 +1,13 @@
 import argparse
+import time
+from networktables import NetworkTables
 import socket
 import imutils
 import numpy as np
 import cv2
 
 #AREA FILTER
-areaFilter = 0.01
+areaFilter = (0.005)
 
 #HSV FILTER
 lower_green = np.array([39,0,234]) #H,S,V
@@ -15,6 +17,9 @@ upper_green = np.array([180, 140, 255]) #H,S,V
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5005 
+
+#SMARTDASHBOARD
+dashboard = NetworkTables.getTable("SmartDashboard")
 
 #parse args
 ap = argparse.ArgumentParser("Team 3997's vision program for 2017 FRC game. runs on rPi")
@@ -75,7 +80,12 @@ def show_webcam():
                 cv2.putText(image, "center", (cX - 20, cY - 20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-                udp.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
+                #UDPudp.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
+            else:
+                cX = 0
+                cY = 0
+
+            dashboard.putNumber('push', cX)
 
             # show the image
             cv2.imshow('Webcam',image)
@@ -83,6 +93,12 @@ def show_webcam():
 
         if cv2.waitKey(1) == ord('q'): 
             break  # 'q' to quit
+
+        try:
+            print('test:', dashboard.getNumber('push'))
+        except KeyError:
+            print('test: N/A')
+
         
     cv2.destroyAllWindows()
 
