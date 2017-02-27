@@ -5,8 +5,8 @@ import cv2
 
 
 #HSV FILTER
-lower_green = np.array([0,0,218])
-upper_green = np.array([180, 77, 255])
+lower_green = np.array([39,0,234])
+upper_green = np.array([180, 140, 255])
 
 # parse args
 ap = argparse.ArgumentParser()

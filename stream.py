@@ -5,9 +5,8 @@ import numpy as np
 import cv2
 
 #HSV FILTER
-lower_green = np.array([0,0,218])
-upper_green = np.array([180, 77, 255])
-
+lower_green = np.array([39,0,234]) #H,S,V
+upper_green = np.array([180, 140, 255]) #H,S,V
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5005
@@ -64,7 +63,6 @@ def show_webcam(mirror=False):
 
             # show the image
             cv2.imshow('image',image)
-            cv2.imshow('res',res)
             cv2.imshow('thresh',thresh)
             if cv2.waitKey(1) == 27: 
                 break  # esc to quit
