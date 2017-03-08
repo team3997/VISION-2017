@@ -26,7 +26,7 @@ ap = argparse.ArgumentParser("Team 3997's vision program for 2017 FRC game. runs
 group = ap.add_mutually_exclusive_group()
 group.add_argument("-i", "--image", nargs=1, required=False, 
         help="path to the input image")
-group.add_argument("-c", "--webcam", nargs=1, type=int, required=False, 
+group.add_argument("-c", "--webcam", nargs=1, required=False, 
         help="webcam number source to use")
 args = ap.parse_args()
 
@@ -88,9 +88,12 @@ def show_webcam():
             dashboard.putNumber('push', cX)
 
             # show the image
-            cv2.imshow('Webcam',image)
-            cv2.imshow('Filtered',thresh)
+            #cv2.imshow('Webcam',image)
+            #cv2.imshow('Filtered',thresh)
 
+        #show the image
+        cv2.imshow('Webcam',image)
+        cv2.imshow('Filtered',thresh)
         if cv2.waitKey(1) == ord('q'): 
             break  # 'q' to quit
 
