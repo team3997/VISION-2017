@@ -39,6 +39,8 @@ def main():
 
 def is_processing():
 
+    print('VISION_isProcessing:', dashboard.getBoolean('VISION_isProcessing'))
+    return dashboard.getBoolean('VISION_isProcessing')
 
 def show_webcam():
     global count
