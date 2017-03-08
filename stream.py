@@ -1,10 +1,17 @@
 import argparse
 import time
 from networktables import NetworkTables
-import socket
 import imutils
+import logging
 import numpy as np
+import sys
 import cv2
+
+#NETWORK TABLES
+robot_ip = "10.39.97.10"
+logging.basicConfig(level=logging.DEBUG)
+NetworkTables.initialize(server=robot_ip)
+dashboard = NetworkTables.getTable("SmartDashboard")
 
 #AREA FILTER
 areaFilter = (0.005)
@@ -13,39 +20,55 @@ areaFilter = (0.005)
 lower_green = np.array([39,0,234]) #H,S,V
 upper_green = np.array([180, 140, 255]) #H,S,V
 
-#UDP SETTINGS
-udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-UDP_IP = "127.0.0.1"
-UDP_PORT = 5005 
-
 #SMARTDASHBOARD
 dashboard = NetworkTables.getTable("SmartDashboard")
 
 #parse args
 ap = argparse.ArgumentParser("Team 3997's vision program for 2017 FRC game. runs on rPi")
 group = ap.add_mutually_exclusive_group()
-group.add_argument("-i", "--image", nargs=1, required=False, 
+group.add_argument("-i", "--image", nargs=1, required=False,
         help="path to the input image")
-group.add_argument("-c", "--webcam", nargs=1, required=False, 
+group.add_argument("-c", "--webcam", nargs=1, required=False,
         help="webcam number source to use")
 args = ap.parse_args()
+
+count = 0
+forcount = 0
+quality = 0.2
+i = 0
 
 def main():
     show_webcam()
 
 def show_webcam():
+    global count
+    global forcount
+    global quality
+    global i
+
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
+        cam.read()
+        #cam.set(cv2.cv.CV_CAP_PROP_EXPOSURE,-100)
+        #time.sleep(3)
         hasImage = True
     elif args.image is not None:
         image = cv2.imread(args.image[0])
         hasImage = True
     else:
         print("expected image or webcam arguement. use --help for more info")
-        hasImage = False 
+        hasImage = False
     while (hasImage):
         if args.webcam is not None:
             ret_val, image = cam.read()
+
+        try:
+            print('DEBUG_FPGATimestamp:', dashboard.getNumber('DEBUG_FPGATimestamp'))
+        except:
+            print('DEBUG_FPGATimestamp: N/A')
+
+        dashboard.putNumber('piTime:', i)
+        i += 1
 
         imgHeight, imgWidth, channels = image.shape
 
@@ -64,6 +87,7 @@ def show_webcam():
 
         # loop over the contours
         for c in cnts:
+
             # compute the center of the contour
             M = cv2.moments(c)
             if M["m00"] != 0:
@@ -85,24 +109,42 @@ def show_webcam():
                 cX = 0
                 cY = 0
 
-            dashboard.putNumber('push', cX)
+            forcount = forcount + 1
+            #if forcount < 10:
+            #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
+            #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
 
-            # show the image
-            #cv2.imshow('Webcam',image)
-            #cv2.imshow('Filtered',thresh)
 
         #show the image
-        cv2.imshow('Webcam',image)
-        cv2.imshow('Filtered',thresh)
-        if cv2.waitKey(1) == ord('q'): 
+        #cv2.imshow('Webcam',image)
+        #cv2.imshow('Filtered',thresh)
+
+
+        biggest_contour = 0;
+        cX = 0.0
+        for c in cnts:
+            if cv2.contourArea(c) > biggest_contour:
+                if M["m00"] != 0:
+                    cX = int(M["m10"] / M["m00"])
+                biggest_contour = cv2.contourArea(c)
+                dashboard.putNumber('cX', cX)
+
+        if cv2.waitKey(1) == ord('q'):
             break  # 'q' to quit
 
-        try:
-            print('test:', dashboard.getNumber('push'))
-        except KeyError:
-            print('test: N/A')
+        small = cv2.resize(image, (0,0), fx=quality, fy=quality)
+        smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
+        if count % 2 == 0:
+            cv2.imwrite("./mjpg/out.jpg", small);
+        else:
+            cv2.imwrite("./mjpg/out.jpg", smallbinary);
+        #cv2.imwrite("./mjpg/out.jpg", small);
 
-        
+        count = count + 1
+        #if count < 10:
+            #cv2.imwrite( "./img" + str(count) + ".jpg", thresh);
+            #cv2.imwrite( "./img" + str(count) + "binary" + ".jpg", image);
+
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
