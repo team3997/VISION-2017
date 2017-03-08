@@ -13,15 +13,13 @@ logging.basicConfig(level=logging.DEBUG)
 NetworkTables.initialize(server=robot_ip)
 dashboard = NetworkTables.getTable("SmartDashboard")
 
-#AREA FILTER
+#FILTER and IMAGE SETTINGS
 areaFilter = (0.005)
+quality = 0.2
 
 #HSV FILTER
 lower_green = np.array([39,0,234]) #H,S,V
 upper_green = np.array([180, 140, 255]) #H,S,V
-
-#SMARTDASHBOARD
-dashboard = NetworkTables.getTable("SmartDashboard")
 
 #parse args
 ap = argparse.ArgumentParser("Team 3997's vision program for 2017 FRC game. runs on rPi")
@@ -34,11 +32,13 @@ args = ap.parse_args()
 
 count = 0
 forcount = 0
-quality = 0.2
 i = 0
 
 def main():
     show_webcam()
+
+def is_processing():
+
 
 def show_webcam():
     global count
