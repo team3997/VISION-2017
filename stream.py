@@ -136,14 +136,19 @@ def show_webcam():
     #cv2.imshow('Filtered',thresh)
 
 
-    biggest_contour = 0;
+    biggest_contour,  next_biggest_contour = 0;
     cX = 0.0
     for c in cnts:
-        if cv2.contourArea(c) > biggest_contour:
+        currentContourArea = cv2.contourArea(c)
+        if currentContourArea > biggest_contour:
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
-            biggest_contour = cv2.contourArea(c)
+            if biggest_contour > next_biggest_contour:
+                next_biggest_contour = biggest_contour
+            biggest_contour = currentContourArea
             dashboard.putNumber('cX', cX)
+        elif currentContourArea > next_biggest_contour:
+            next_biggest_contour = currentContourArea
 
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
