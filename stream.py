@@ -101,6 +101,9 @@ def show_webcam():
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
+    cX = 0.0
+    biggest_contour,  next_biggest_contour = 0;
+
     # loop over the contours
     for c in cnts:
 
@@ -126,19 +129,7 @@ def show_webcam():
             cY = 0
 
         forcount = forcount + 1
-        #if forcount < 10:
-        #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
-        #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
-
-
-    #show the image
-    #cv2.imshow('Webcam',image)
-    #cv2.imshow('Filtered',thresh)
-
-
-    biggest_contour,  next_biggest_contour = 0;
-    cX = 0.0
-    for c in cnts:
+        
         currentContourArea = cv2.contourArea(c)
         if currentContourArea > biggest_contour:
             if M["m00"] != 0:
@@ -149,6 +140,14 @@ def show_webcam():
             dashboard.putNumber('cX', cX)
         elif currentContourArea > next_biggest_contour:
             next_biggest_contour = currentContourArea
+        #if forcount < 10:
+        #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
+        #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
+
+
+    #show the image
+    #cv2.imshow('Webcam',image)
+    #cv2.imshow('Filtered',thresh)
 
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
