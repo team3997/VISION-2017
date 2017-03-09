@@ -39,7 +39,6 @@ def main():
     global image
 
     if args.webcam is not None:
-        print "GOT HERE!!!!!!!!"
         cam = cv2.VideoCapture(0)
         cam.read()
     elif args.image is not None:
@@ -47,7 +46,6 @@ def main():
         show_webcam()
     else:
         print("expected image or webcam arguement. use --help for more info")
-        hasImage = False
         exit(0)
 
     main_count = 0
@@ -56,6 +54,8 @@ def main():
         main_count += 1
         if is_processing():
             show_webcam()
+        else:
+            time.sleep(0.3)
         if cv2.waitKey(1) == ord('q'):
             break  # 'q' to quit
 
@@ -102,7 +102,8 @@ def show_webcam():
     cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
     cX = 0.0
-    biggest_contour,  next_biggest_contour = 0;
+    biggest_contour = 0
+    next_biggest_contour = 0
 
     # loop over the contours
     for c in cnts:
@@ -162,7 +163,6 @@ def show_webcam():
         #cv2.imwrite( "./img" + str(count) + ".jpg", thresh);
         #cv2.imwrite( "./img" + str(count) + "binary" + ".jpg", image);
 
-    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main()
