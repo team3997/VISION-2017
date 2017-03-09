@@ -40,7 +40,8 @@ def main():
 
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
-        cam.read()
+        cam.set(CV_CAP_PROP_EXPOSURE, 1)
+	cam.read()
     elif args.image is not None:
         image = cv2.imread(args.image[0])
         show_webcam()
@@ -141,7 +142,7 @@ def show_webcam():
             dashboard.putNumber('cX', cX)
             elif currentContourArea > next_biggest_contour:
             	next_biggest_contour = currentContourArea
-	   	 dashboard.putNumber("cX 2nd Contour", cX)
+	   	 dashboard.putNumber("cX_2", cX)
         #if forcount < 10:
         #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
         #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
