@@ -139,8 +139,9 @@ def show_webcam():
                 next_biggest_contour = biggest_contour
             biggest_contour = currentContourArea
             dashboard.putNumber('cX', cX)
-        elif currentContourArea > next_biggest_contour:
-            next_biggest_contour = currentContourArea
+            elif currentContourArea > next_biggest_contour:
+            	next_biggest_contour = currentContourArea
+	   	 dashboard.putNumber("cX 2nd Contour", cX)
         #if forcount < 10:
         #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
         #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
