@@ -35,8 +35,12 @@ forcount = 0
 i = 0
 
 def main():
+    global cam
+    global image
+
     if args.webcam is not None:
-        cam = cv2.VideoCapture(args.webcam[0])
+        print "GOT HERE!!!!!!!!"
+        cam = cv2.VideoCapture(0)
         cam.read()
     elif args.image is not None:
         image = cv2.imread(args.image[0])
@@ -44,8 +48,12 @@ def main():
     else:
         print("expected image or webcam arguement. use --help for more info")
         hasImage = False
+        exit(0)
 
+    main_count = 0
     while(True):
+        dashboard.putNumber('piCount:', time.clock())
+        main_count += 1
         if is_processing():
             show_webcam()
         if cv2.waitKey(1) == ord('q'):
@@ -67,6 +75,7 @@ def show_webcam():
     global quality
     global i
     global cam
+    global image
 
     if args.webcam is not None:
         ret_val, image = cam.read()
@@ -76,8 +85,6 @@ def show_webcam():
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
 
-    dashboard.putNumber('piTime:', i)
-    i += 1
 
     imgHeight, imgWidth, channels = image.shape
 
@@ -141,10 +148,10 @@ def show_webcam():
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
     if count % 2 == 0:
-        cv2.imwrite("./mjpg/out.jpg", small);
+        cv2.imwrite("/home/pi/mjpg/out.jpg", small);
     else:
-        cv2.imwrite("./mjpg/out.jpg", smallbinary);
-    #cv2.imwrite("./mjpg/out.jpg", small);
+        cv2.imwrite("/home/pi/mjpg/out.jpg", smallbinary);
+    #cv2.imwrite("/home/pi/mjpg/out.jpg", smallbinary);
 
     count = count + 1
     #if count < 10:
