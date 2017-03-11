@@ -51,8 +51,19 @@ def main():
 
     main_count = 0
     while(True):
+        H_LOW = dashboard.getNumber("H_LOW", 0);
+        H_HIGH = dashboard.getNumber("H_HIGH", 0);
+        S_LOW = dashboard.getNumber("S_LOW", 0);
+        S_HIGH = dashboard.getNumber("S_HIGH", 0);
+        V_LOW = dashboard.getNumber("V_LOW", 0);
+        V_HIGH = dashboard.getNumber("V_HIGH", 0);
+
         dashboard.putNumber('piCount:', time.clock())
         main_count += 1
+        lower_green = np.array([H_LOW,S_LOW,V_LOW]) #H,S,V
+        upper_green = np.array([H_HIGH, S_HIGH, V_HIGH]) #H,S,V
+
+
         if is_processing():
             show_webcam()
         else:
