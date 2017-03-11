@@ -14,7 +14,7 @@ NetworkTables.initialize(server=robot_ip)
 dashboard = NetworkTables.getTable("SmartDashboard")
 
 #FILTER and IMAGE SETTINGS
-areaFilter = (0.000001)
+areaFilter = (0.01)
 quality = 1.0
 
 #HSV FILTER
@@ -141,18 +141,32 @@ def show_webcam():
         else:
             break
 
+        while True:
+            cv2.imshow('Webcam',image)
+            cv2.imshow('Filtered',thresh)
+            if cv2.waitKey(1) == ord('f'):
+                break # 'q' to quit
+
         # limit area
-        #for c in cnts:
-        if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
-        #if True:
-            # draw the contouresr and center of the shape on the image
-            print ("DRAWING")
-            cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
-            cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
-            cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        else:
-            cX = 0
-            cY = 0
+        for c in cnts:
+            if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
+            #if True:
+                # draw the contouresr and center of the shape on the image
+                while True:
+                    cv2.imshow('Webcam',image)
+                    cv2.imshow('Filtered',thresh)
+                    if cv2.waitKey(1) == ord('f'):
+                        break # 'q' to quit
+                print ("DRAWING")
+                M = cv2.moments(c)
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
+                cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
+                cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            else:
+                cX = 0
+                cY = 0
 
         forcount = forcount + 1
 
