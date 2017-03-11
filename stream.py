@@ -14,7 +14,7 @@ NetworkTables.initialize(server=robot_ip)
 dashboard = NetworkTables.getTable("SmartDashboard")
 
 #FILTER and IMAGE SETTINGS
-areaFilter = (0.01)
+areaFilter = (0.000001)
 quality = 1.0
 
 #HSV FILTER
@@ -70,8 +70,12 @@ def main():
             show_webcam()
         else:
             time.sleep(0.3)
-        if cv2.waitKey(1) == ord('q'):
-            break  # 'q' to quit
+        if args.image is not None:
+            while(True):
+                if cv2.waitKey(1) == ord('q'):
+                    exit(0) # 'q' to quit
+        elif cv2.waitKey(1) == ord('q'):
+            exit(0) # 'q' to quit
 
 
 def is_processing():
@@ -95,14 +99,15 @@ def show_webcam():
 
     if args.webcam is not None:
         ret_val, image = cam.read()
+    elif args.image is not None:
+        image = cv2.imread(args.image[0])
 
     #try:
     #    print('DEBUG_FPGATimestamp:', dashboard.getNumber('DEBUG_FPGATimestamp'))
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
-
-    #image = cv2.transpose(image)
-    #image = cv2.flip(image, flipCode=0)
+    image = cv2.transpose(image)
+    image = cv2.flip(image, flipCode=0)
 
     imgHeight, imgWidth, channels = image.shape
 
@@ -137,18 +142,17 @@ def show_webcam():
             break
 
         # limit area
-        for c in cnts:
-            #if cv2.contourArea(c) / (imgHeight * imgWidth) > areaFilter:
-            #if True:
-                # draw the contouresr and center of the shape on the image
-                print ("DRAWING")
-                cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-                cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
-                cv2.putText(image, "center", (cX - 20, cY - 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-            else:
-                cX = 0
-                cY = 0
+        #for c in cnts:
+        if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
+        #if True:
+            # draw the contouresr and center of the shape on the image
+            print ("DRAWING")
+            cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
+            cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
+            cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        else:
+            cX = 0
+            cY = 0
 
         forcount = forcount + 1
 
