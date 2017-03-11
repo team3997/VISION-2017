@@ -64,12 +64,13 @@ def main():
 def is_processing():
     img_proc = False
     try:
-        print('VISION_isProcessing:', dashboard.getBoolean('VISION_isProcessing', False))
+        #print('VISION_isProcessing:', dashboard.getBoolean('VISION_isProcessing', False))
         img_proc = dashboard.getBoolean('VISION_isProcessing', False)
     except:
-        print('VISION_isProcessing: False')
-    #return img_proc
-    return True
+        #print('VISION_isProcessing: False')
+        print("except reached when getting dashboard");
+    return img_proc
+    #return True
 
 def show_webcam():
     global count
@@ -86,10 +87,10 @@ def show_webcam():
     #    print('DEBUG_FPGATimestamp:', dashboard.getNumber('DEBUG_FPGATimestamp'))
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
-    
-    imgHeight, imgWidth, channels = image.shape
+
     image = cv2.transpose(image)
     image = cv2.flip(image, flipCode=0)
+    imgHeight, imgWidth, channels = image.shape
 
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)#convert image to hsv
 
@@ -101,7 +102,7 @@ def show_webcam():
     blurred = cv2.GaussianBlur(gray, (5, 5), 0) #gaussian blur to smooth edges
     thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1] #create binary image
 
-    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
     cX = 0.0
@@ -125,7 +126,7 @@ def show_webcam():
             cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
             cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
             cv2.putText(image, "center", (cX - 20, cY - 20),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             #UDPudp.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
         else:
@@ -133,7 +134,7 @@ def show_webcam():
             cY = 0
 
         forcount = forcount + 1
-        
+
         currentContourArea = cv2.contourArea(c)
         if currentContourArea > biggest_contour:
             if M["m00"] != 0:
@@ -142,17 +143,19 @@ def show_webcam():
                 next_biggest_contour = biggest_contour
             	biggest_contour = currentContourArea
             	dashboard.putNumber('cX', cX)
+                print("biggest: %s" % cX)
             elif currentContourArea > next_biggest_contour:
             	next_biggest_contour = currentContourArea
 	   	dashboard.putNumber("cX_2", cX)
+                print("nextbiggest: %s" % cX)
         #if forcount < 10:
         #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
         #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
 
 
     #show the image
-    cv2.imshow('Webcam',image)
-    cv2.imshow('Filtered',thresh)
+    #cv2.imshow('Webcam',image)
+    #cv2.imshow('Filtered',thresh)
 
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
