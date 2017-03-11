@@ -40,7 +40,6 @@ def main():
 
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
-        cam.set(CV_CAP_PROP_EXPOSURE, 1)
 	cam.read()
     elif args.image is not None:
         image = cv2.imread(args.image[0])
@@ -68,7 +67,8 @@ def is_processing():
         img_proc = dashboard.getBoolean('VISION_isProcessing', False)
     except:
         print('VISION_isProcessing: False')
-    return img_proc
+    #return img_proc
+    return True
 
 def show_webcam():
     global count
@@ -85,9 +85,12 @@ def show_webcam():
     #    print('DEBUG_FPGATimestamp:', dashboard.getNumber('DEBUG_FPGATimestamp'))
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
-
-
+    
     imgHeight, imgWidth, channels = image.shape
+    F = cv2.getRotationMatrix2D((imgHeight/2,imgWidth/2),90,1)
+    image = cv2.warpAffine(image, F, (imgHeight,imgWidth))
+    
+
 
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)#convert image to hsv
 
@@ -149,8 +152,8 @@ def show_webcam():
 
 
     #show the image
-    #cv2.imshow('Webcam',image)
-    #cv2.imshow('Filtered',thresh)
+    cv2.imshow('Webcam',image)
+    cv2.imshow('Filtered',thresh)
 
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
