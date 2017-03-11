@@ -89,8 +89,6 @@ def show_webcam():
     imgHeight, imgWidth, channels = image.shape
     F = cv2.getRotationMatrix2D((imgHeight/2,imgWidth/2),90,1)
     image = cv2.warpAffine(image, F, (imgHeight,imgWidth))
-    
-
 
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)#convert image to hsv
 
@@ -102,7 +100,7 @@ def show_webcam():
     blurred = cv2.GaussianBlur(gray, (5, 5), 0) #gaussian blur to smooth edges
     thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1] #create binary image
 
-    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if imutils.is_cv2() else cnts[1]
 
     cX = 0.0
