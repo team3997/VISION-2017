@@ -87,8 +87,8 @@ def show_webcam():
     #    print('DEBUG_FPGATimestamp: N/A')
     
     imgHeight, imgWidth, channels = image.shape
-    F = cv2.getRotationMatrix2D((imgHeight/2,imgWidth/2),90,1)
-    image = cv2.warpAffine(image, F, (imgHeight,imgWidth))
+    image = cv2.transpose(image)
+    image = cv2.flip(image, flipCode=1)
     
 
 
