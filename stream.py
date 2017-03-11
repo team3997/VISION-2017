@@ -139,58 +139,62 @@ def show_webcam():
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
         else:
-            break
+            print "divide by zero break"
+            continue
 
-        while True:
-            cv2.imshow('Webcam',image)
-            cv2.imshow('Filtered',thresh)
-            if cv2.waitKey(1) == ord('f'):
-                break # 'q' to quit
+        #while True:
+        #    cv2.imshow('Webcam',image)
+        #    cv2.imshow('Filtered',thresh)
+        #    if cv2.waitKey(1) == ord('f'):
+        #        break # 'q' to quit
 
         # limit area
-        for c in cnts:
-            if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
-            #if True:
-                # draw the contouresr and center of the shape on the image
-                while True:
-                    cv2.imshow('Webcam',image)
-                    cv2.imshow('Filtered',thresh)
-                    if cv2.waitKey(1) == ord('f'):
-                        break # 'q' to quit
-                print ("DRAWING")
-                M = cv2.moments(c)
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
-                cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
-                cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            else:
-                cX = 0
-                cY = 0
+        #for c in cnts:
+        if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
+        #if True:
+            # draw the contouresr and center of the shape on the image
+            while True:
+                cv2.imshow('Webcam',image)
+                cv2.imshow('Filtered',thresh)
+                if cv2.waitKey(1) == ord('f'):
+                    print "f press break"
+                    break # 'q' to quit
+            print ("DRAWING")
+            M = cv2.moments(c)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
+            cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
+            cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        else:
+            cX = 0
+            cY = 0
 
         forcount = forcount + 1
 
         currentContourArea = cv2.contourArea(c)
+        print("currentContourArea: %s" % currentContourArea)
         if currentContourArea > biggest_contour:
             if M["m00"] != 0:
                 cX = int(M["m10"] / M["m00"])
             if biggest_contour > next_biggest_contour:
                 next_biggest_contour = biggest_contour
-            	biggest_contour = currentContourArea
-            	dashboard.putNumber('cX', cX)
-                print("biggest: %s" % cX)
-            elif currentContourArea > next_biggest_contour:
-            	next_biggest_contour = currentContourArea
-	   	dashboard.putNumber("cX_2", cX)
-                print("nextbiggest: %s" % cX)
+            biggest_contour = currentContourArea
+            dashboard.putNumber('cX', cX)
+            print("biggest: %s" % biggest_contour)
+        elif currentContourArea > next_biggest_contour:
+            next_biggest_contour = currentContourArea
+            dashboard.putNumber("cX_2", cX)
+            print("nextbiggest: %s" % next_biggest_contour)
         #if forcount < 10:
         #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
         #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
+        print("loop amount %d " % c_amnt)
 
 
     #show the image
-    cv2.imshow('Webcam',image)
-    cv2.imshow('Filtered',thresh)
+    #cv2.imshow('Webcam',image)
+    #cv2.imshow('Filtered',thresh)
 
     print("------------AMOUNT: %s " % c_amnt)
 
