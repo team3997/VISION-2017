@@ -14,8 +14,8 @@ NetworkTables.initialize(server=robot_ip)
 dashboard = NetworkTables.getTable("SmartDashboard")
 
 #FILTER and IMAGE SETTINGS
-areaFilter = (0.005)
-quality = 0.2
+areaFilter = (0.01)
+quality = 1.0
 
 #HSV FILTER
 lower_green = np.array([39,0,234]) #H,S,V
@@ -37,6 +37,8 @@ i = 0
 def main():
     global cam
     global image
+    global lower_green
+    global upper_green
 
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
@@ -60,8 +62,8 @@ def main():
 
         dashboard.putNumber('piCount:', time.clock())
         main_count += 1
-        lower_green = np.array([H_LOW,S_LOW,V_LOW]) #H,S,V
-        upper_green = np.array([H_HIGH, S_HIGH, V_HIGH]) #H,S,V
+        #lower_green = np.array([H_LOW,S_LOW,V_LOW]) #H,S,V
+        #upper_green = np.array([H_HIGH, S_HIGH, V_HIGH]) #H,S,V
 
 
         if is_processing():
@@ -80,8 +82,8 @@ def is_processing():
     except:
         #print('VISION_isProcessing: False')
         print("except reached when getting dashboard");
-    return img_proc
-    #return True
+    #return img_proc
+    return True
 
 def show_webcam():
     global count
@@ -99,8 +101,9 @@ def show_webcam():
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
 
-    image = cv2.transpose(image)
-    image = cv2.flip(image, flipCode=0)
+    #image = cv2.transpose(image)
+    #image = cv2.flip(image, flipCode=0)
+
     imgHeight, imgWidth, channels = image.shape
 
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)#convert image to hsv
@@ -120,9 +123,11 @@ def show_webcam():
     biggest_contour = 0
     next_biggest_contour = 0
 
+    c_amnt = 0
     # loop over the contours
     for c in cnts:
 
+        c_amnt += 1
         # compute the center of the contour
         M = cv2.moments(c)
         if M["m00"] != 0:
@@ -132,17 +137,18 @@ def show_webcam():
             break
 
         # limit area
-        if cv2.contourArea(c) / (imgHeight * imgWidth) > areaFilter:
-            # draw the contour and center of the shape on the image
-            cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-            cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
-            cv2.putText(image, "center", (cX - 20, cY - 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-            #UDPudp.sendto("cX: %s, cY, %s" % (str(cX), str(cY)), (UDP_IP, UDP_PORT))
-        else:
-            cX = 0
-            cY = 0
+        for c in cnts:
+            #if cv2.contourArea(c) / (imgHeight * imgWidth) > areaFilter:
+            #if True:
+                # draw the contouresr and center of the shape on the image
+                print ("DRAWING")
+                cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+                cv2.circle(image, (cX, cY), 7, (255, 255, 255), -1)
+                cv2.putText(image, "center", (cX - 20, cY - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            else:
+                cX = 0
+                cY = 0
 
         forcount = forcount + 1
 
@@ -165,8 +171,10 @@ def show_webcam():
 
 
     #show the image
-    #cv2.imshow('Webcam',image)
-    #cv2.imshow('Filtered',thresh)
+    cv2.imshow('Webcam',image)
+    cv2.imshow('Filtered',thresh)
+
+    print("------------AMOUNT: %s " % c_amnt)
 
     small = cv2.resize(image, (0,0), fx=quality, fy=quality)
     smallbinary = cv2.resize(thresh, (0,0), fx=quality, fy=quality)
@@ -178,8 +186,8 @@ def show_webcam():
 
     count = count + 1
     #if count < 10:
-        #cv2.imwrite( "./img" + str(count) + ".jpg", thresh);
-        #cv2.imwrite( "./img" + str(count) + "binary" + ".jpg", image);
+    #    cv2.imwrite( "./img" + str(count) + ".jpg", thresh);
+    #    cv2.imwrite( "./img" + str(count) + "binary" + ".jpg", image);
 
 
 if __name__ == '__main__':
