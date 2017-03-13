@@ -15,7 +15,7 @@ dashboard = NetworkTables.getTable("SmartDashboard")
 
 #FILTER and IMAGE SETTINGS
 areaFilter = (0.01)
-quality = 1.0
+quality = 0.2
 
 #HSV FILTER
 lower_green = np.array([39,0,234]) #H,S,V
@@ -43,7 +43,7 @@ def main():
     if args.webcam is not None:
         cam = cv2.VideoCapture(0)
 	cam.read()
-        cam.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -100)
+        #cam.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -100)
     elif args.image is not None:
         image = cv2.imread(args.image[0])
         show_webcam()
@@ -65,7 +65,6 @@ def main():
         #lower_green = np.array([H_LOW,S_LOW,V_LOW]) #H,S,V
         #upper_green = np.array([H_HIGH, S_HIGH, V_HIGH]) #H,S,V
 
-
         if is_processing():
             show_webcam()
         else:
@@ -86,8 +85,8 @@ def is_processing():
     except:
         #print('VISION_isProcessing: False')
         print("except reached when getting dashboard");
-    #return img_proc
-    return True
+    return img_proc
+    #return True
 
 def show_webcam():
     global count
@@ -106,8 +105,8 @@ def show_webcam():
     #    print('DEBUG_FPGATimestamp:', dashboard.getNumber('DEBUG_FPGATimestamp'))
     #except:
     #    print('DEBUG_FPGATimestamp: N/A')
-    image = cv2.transpose(image)
-    image = cv2.flip(image, flipCode=0)
+    #image = cv2.transpose(image)
+    #image = cv2.flip(image, flipCode=0)
 
     imgHeight, imgWidth, channels = image.shape
 
@@ -153,24 +152,21 @@ def show_webcam():
         if (cv2.contourArea(c) / (imgHeight * imgWidth)) > areaFilter:
         #if True:
             # draw the contouresr and center of the shape on the image
-            while True:
-                cv2.imshow('Webcam',image)
-                cv2.imshow('Filtered',thresh)
-                if cv2.waitKey(1) == ord('f'):
-                    print "f press break"
-                    break # 'q' to quit
             print ("DRAWING")
             M = cv2.moments(c)
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
             cv2.drawContours(image, [c], -1, (0, 0, 255), 2)
             cv2.circle(image, (cX, cY), 7, (0, 255, 255), -1)
-            cv2.putText(image, "center", (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            cv2.putText(image, ("center: %s" % cX), (cX - 20, cY - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         else:
             cX = 0
             cY = 0
 
         forcount = forcount + 1
+
+        center_biggest = 0.0
+        center_next_biggest = 0.0
 
         currentContourArea = cv2.contourArea(c)
         print("currentContourArea: %s" % currentContourArea)
@@ -180,12 +176,21 @@ def show_webcam():
             if biggest_contour > next_biggest_contour:
                 next_biggest_contour = biggest_contour
             biggest_contour = currentContourArea
-            dashboard.putNumber('cX', cX)
+            center_biggest = cX
+            dashboard.putNumber('center_biggest', center_biggest)
             print("biggest: %s" % biggest_contour)
         elif currentContourArea > next_biggest_contour:
             next_biggest_contour = currentContourArea
-            dashboard.putNumber("cX_2", cX)
+            center_next_biggest = cX
+            dashboard.putNumber("center_next_biggest", center_next_biggest)
             print("nextbiggest: %s" % next_biggest_contour)
+        
+        if center_biggest <= center_next_biggest: #determine left and right contours
+            dashboard.putNumber("VISION_leftContour", center_biggest)
+            dashboard.putNumber("VISION_rightContour", center_next_biggest)
+        else:
+            dashboard.putNumber("VISION_leftContour", center_next_biggest)
+            dashboard.putNumber("VISION_rightContour", center_biggest)
         #if forcount < 10:
         #    cv2.imwrite( "./forimg" + str(forcount) + ".jpg", thresh);
         #    cv2.imwrite( "./forimg" + str(forcount) + "binary" + ".jpg", image);
