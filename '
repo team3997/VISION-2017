@@ -15,7 +15,7 @@ dashboard = NetworkTables.getTable("SmartDashboard")
 
 #FILTER and IMAGE SETTINGS
 areaFilter = (0.1) #area of contour must be at least 'areaFilter' percent of the image
-quality = 0.5 #quality of image sent to the smartdashboard
+quality = 0.8
 
 #HSV FILTER
 lower_green = np.array([50,195,0]) #H,S,V
