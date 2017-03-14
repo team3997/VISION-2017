@@ -41,7 +41,7 @@ def main():
     global upper_green
 
     if args.webcam is not None:
-        cam = cv2.VideoCapture(0)
+        cam = cv2.VideoCapture(args.webcam[0])
 	cam.read()
         #cam.set(cv2.cv.CV_CAP_PROP_EXPOSURE, -100)
     elif args.image is not None:
